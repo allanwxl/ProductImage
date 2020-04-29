@@ -128,23 +128,28 @@ if(type === 'jd') {
                 .get(`https://wqsitem.jd.com/detail/0_d${p_id}_normal.html`)
                 .then(res => {
                     let intros = res.data.match(/\/\/img30\.360buyimg\.com\/[0-9a-zA-Z\/]*\.jpg/gi);
-                    intros = intros.map((ele, idx) => {
-                        if(/http/gi.test(ele)) {
-                            return ele;
-                        } else {
-                            return 'http:' + ele;
-                        }
-                    });
-                    intros.forEach(async function(src, idx) {
-                        let filename = (idx).toString() + '.jpg';
-                        await down_request
-                            .get(src)
-                            .then((res) => {
-                                fs.writeFileSync(path.join(intro_dir, filename), res.data, 'binary');
-                            }).catch((err) => {
+                    if (intros) {
+                      intros = intros.map((ele, idx) => {
+                          if(/http/gi.test(ele)) {
+                              return ele;
+                          } else {
+                              return 'http:' + ele;
+                          }
+                      });
+                      intros.forEach(async function(src, idx) {
+                          let filename = (idx).toString() + '.jpg';
+                          await down_request
+                              .get(src)
+                              .then((res) => {
+                                  fs.writeFileSync(path.join(intro_dir, filename), res.data, 'binary');
+                              }).catch((err) => {
 
-                            });
-                    });
+                              });
+                      });
+                    } else {
+                      console.log(intros)
+                      console.log('详情页匹配图片异常')
+                    }
                 });
         });
 }
@@ -210,8 +215,8 @@ if(type === 'jd-hk') {
                                 });
                         });
                     } else {
-                        console.log(intros)
-                        console.log('详情页匹配图片异常')
+                      console.log(intros)
+                      console.log('详情页匹配图片异常')
                     }
                     
                 });
