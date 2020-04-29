@@ -1,1 +1,3 @@
-ProductImage
+# ProductImage
+淘宝 京东 苏宁 等网上商城的商品图片小爬虫（含轮播图和产品介绍）
+
