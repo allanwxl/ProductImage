@@ -151,6 +151,7 @@ if(type === 'jd') {
 
 if(type === 'jd-hk') {
     let p_id = url.match(/\/[0-9]*\.html/gi)[0].replace(/[\/\.html]/gi, "");
+    console.log(`https://item.m.jd.com/product/${p_id}.html`)
     axios
         .get(`https://item.m.jd.com/product/${p_id}.html`)
         .then(async function(res) {
@@ -183,27 +184,36 @@ if(type === 'jd-hk') {
             let intro_dir = path.join(root_dir, '图片介绍');
             if(!fs.existsSync(intro_dir))
                 fs.mkdirSync(intro_dir);
+            // https://mitem.jd.hk/product/40893058814.html
+            // https://wqsitem.jd.com/detail/0_d${p_id}_normal.html
+            // //img30.360buyimg.com/popWaterMark/jfs/t1/108870/4/9667/55684/5e788487Ef88f4c54/b3adc450f074e6b3.jpg!q70.dpg.webp
             await axios
-                .get(`https://wqsitem.jd.com/detail/0_d${p_id}_normal.html`)
+                .get(`https://mitem.jd.hk/product/${p_id}.html`)
                 .then(res => {
                     let intros = res.data.match(/\/\/img30\.360buyimg\.com\/[0-9a-zA-Z\/]*\.jpg/gi);
-                    intros = intros.map((ele, idx) => {
-                        if(/http/gi.test(ele)) {
-                            return ele;
-                        } else {
-                            return 'http:' + ele;
-                        }
-                    });
-                    intros.forEach(async function(src, idx) {
-                        let filename = (idx).toString() + '.jpg';
-                        await down_request
-                            .get(src)
-                            .then((res) => {
-                                fs.writeFileSync(path.join(intro_dir, filename), res.data, 'binary');
-                            }).catch((err) => {
-
-                            });
-                    });
+                    if (intros) {
+                        intros = intros.map((ele, idx) => {
+                            if(/http/gi.test(ele)) {
+                                return ele;
+                            } else {
+                                return 'http:' + ele;
+                            }
+                        });
+                        intros.forEach(async function(src, idx) {
+                            let filename = (idx).toString() + '.jpg';
+                            await down_request
+                                .get(src)
+                                .then((res) => {
+                                    fs.writeFileSync(path.join(intro_dir, filename), res.data, 'binary');
+                                }).catch((err) => {
+    
+                                });
+                        });
+                    } else {
+                        console.log(intros)
+                        console.log('详情页匹配图片异常')
+                    }
+                    
                 });
         });
 }
